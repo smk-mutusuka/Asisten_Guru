@@ -1,10 +1,8 @@
 // ⚠️ GANTI DENGAN URL WEB APP APPS SCRIPT KAMU
 var BACKEND_URL = 'https://script.google.com/macros/s/AKfycbyUAYG8PVKtXEOI-NrlmNMR_qk2oNm-0t2Ju0TSohz4-cbqnfUJtjaQyGOJm-Hqx9lh/exec';
 
-var currentUser = null;
-
 // =============================================
-// JEMBATAN BACKEND (Menggantikan google.script.run)
+// JEMBATAN BACKEND
 // =============================================
 window.google = window.google || {};
 window.google.script = window.google.script || {};
@@ -36,13 +34,16 @@ window.google.script.run = {
 };
 
 // =============================================
-// LOGIN & UI HANDLERS
+// UI LOGIN & TAB (SUDAH DIPERBAIKI)
 // =============================================
 function switchLoginTab(role) {
-  document.getElementById('tab-btn-admin').classList.remove('active');
-  document.getElementById('tab-btn-gtk').classList.remove('active');
+  // Sembunyikan semua form & hapus status aktif
   document.getElementById('loginFormAdmin').classList.add('hidden');
   document.getElementById('loginFormGtk').classList.add('hidden');
+  document.getElementById('tab-btn-admin').classList.remove('active');
+  document.getElementById('tab-btn-gtk').classList.remove('active');
+
+  // Tampilkan yang dipilih
   if (role === 'admin') {
     document.getElementById('tab-btn-admin').classList.add('active');
     document.getElementById('loginFormAdmin').classList.remove('hidden');
@@ -63,8 +64,9 @@ function togglePassword(inputId, iconElement) {
 
 function handleLoginAdmin(e) {
   e.preventDefault();
-  var u = document.getElementById('username').value.trim();
-  var p = document.getElementById('password').value;
+  var u = document.getElementById('admin_user').value.trim();
+  var p = document.getElementById('admin_pass').value;
+  
   showLoading();
   google.script.run.withSuccessHandler(function(res) {
     hideLoading();
@@ -74,14 +76,15 @@ function handleLoginAdmin(e) {
       initAIGuruPageAdmin();
     }
   }).withFailureHandler(function(err) {
-    hideLoading(); Swal.fire({ icon: 'error', title: 'Login Gagal', text: err.message });
-  }).doLogin(u, p);
+    hideLoading(); Swal.fire({ icon: 'error', title: 'Login Admin Gagal', text: err.message });
+  }).doLogin(u, p); // Memanggil fungsi Admin
 }
 
 function handleLoginGTK(e) {
   e.preventDefault();
-  var nbm = document.getElementById('nbm_login').value.trim();
-  var pass = document.getElementById('password_gtk').value.trim();
+  var nbm = document.getElementById('gtk_nbm').value.trim();
+  var pass = document.getElementById('gtk_pass').value.trim();
+  
   showLoading();
   google.script.run.withSuccessHandler(function(res) {
     hideLoading();
@@ -91,8 +94,8 @@ function handleLoginGTK(e) {
       initAIGuruPage();
     }
   }).withFailureHandler(function(err) {
-    hideLoading(); Swal.fire({ icon: 'error', title: 'Login Gagal', text: err.message });
-  }).doGtkLogin(nbm, pass);
+    hideLoading(); Swal.fire({ icon: 'error', title: 'Login GTK Gagal', text: err.message });
+  }).doGtkLogin(nbm, pass); // Memanggil fungsi GTK
 }
 
 function masukKeApp(nama) {
@@ -111,15 +114,12 @@ function logout() {
   switchLoginTab('admin');
 }
 
-// Loader
 function showLoading() { document.getElementById('global-loader').classList.remove('hidden'); }
 function hideLoading() { document.getElementById('global-loader').classList.add('hidden'); }
 
-
 // =========================================================================
-// ⬇️ DI BAWAH INI ADALAH KODE ASLI KAMU (JS_AI_Guru.html.txt) TANPA DIUBAH ⬇️
+// ⬇️ KODE ASLI FORM AI GURU (Sesuai file awalmu)
 // =========================================================================
-
 var FE_SCHOOL_LOGO_URL = "https://lh3.googleusercontent.com/d/1d1xBvybSKr-I8d_LOYZwdEV1TlVgptfo";
 var FE_SMK_JURUSAN = [
   { id: "TP",  nama: "Teknik Pemesinan",          singkat: "TP",  bidang: "Teknologi Manufaktur dan Rekayasa" },
@@ -188,8 +188,8 @@ var aiGuruState = {
 };
 
 function getGuruInfo() {
-  if (!currentUser || !currentUser.gtk) return { nama: "", nbm: "" };
-  return { nama: currentUser.gtk.Nama_GTK || "", nbm: currentUser.gtk.NBM || "" };
+  if (!currentUser || !currentUser.Nama_GTK) return { nama: "", nbm: "" };
+  return { nama: currentUser.Nama_GTK || "", nbm: currentUser.NBM || "" };
 }
 
 function autoFillGuruFields() {
@@ -211,14 +211,8 @@ function autoFillGuruFields() {
   });
 }
 
-function initAIGuruPage() {
-  renderAIGuruPage();
-}
-
-function initAIGuruPageAdmin() {
-  renderAIGuruPage();
-  // Opsional: Sesuaikan jika admin mau form read-only, tapi defaultnya sama.
-}
+function initAIGuruPage() { renderAIGuruPage(); }
+function initAIGuruPageAdmin() { renderAIGuruPage(); }
 
 function renderAIGuruPage() {
   var container = document.getElementById('ai-guru-content');
@@ -240,7 +234,7 @@ function renderAIGuruPage() {
       '<button type="button" class="ai-tab-btn" data-tab="kokurikuler" onclick="switchAITab(\'kokurikuler\')"><i class="fas fa-users-cog"></i> Kokurikuler</button>' +
     '</div>' +
     
-    // PANEL PROTA (PERSIS ASLI)
+    // PANEL PROTA
     '<div class="ai-panel" id="ai-panel-prota">' +
       buildPanelHeader('Prota & Promes', 'Buat Program Tahunan (Prota) dan Program Semester (Promes) sekaligus.', 'fa-calendar-alt') +
       '<div class="card ai-form-card">' +
@@ -270,7 +264,7 @@ function renderAIGuruPage() {
         buildActionButtonsProta() +
       '</div><div class="ai-output-container" id="ai-output-prota"></div></div>' +
 
-    // PANEL MODUL AJAR (PERSIS ASLI)
+    // PANEL MODUL AJAR
     '<div class="ai-panel hidden" id="ai-panel-modul_ajar">' +
       buildPanelHeader('Modul Ajar SMK', 'Susun modul ajar lengkap sesuai Kurikulum Merdeka dengan K3LH & standar industri.', 'fa-book-open') +
       '<div class="card ai-form-card">' +
@@ -297,13 +291,13 @@ function renderAIGuruPage() {
         '</div></div>' +
         '<div class="ai-form-section"><div class="ai-form-section-title"><i class="fas fa-tools"></i> Sarana & Dimensi Lulusan</div>' +
             '<div class="form-group"><label>Sarana & Prasarana (opsional)</label><textarea id="ma_saranaPrasarana" class="form-control" rows="2"></textarea></div>' +
-            '<div class="form-group"><label>Dimensi Profil Lulusan (pilih 2-3)</label><div class="ai-checkbox-grid">' + dimensiCheckboxes + '</div>' +
-            '<div class="form-group"><label>Versi Modul</label><select id="ma_versi" class="form-control"><option value="ringkas">Ringkas</option><option value="lengkap" selected>Lengkap</option></select></div>' +
+            '<div class="form-group"><label>Dimensi Profil Lulusan (pilih 2-3)</label></div><div class="ai-checkbox-grid">' + dimensiCheckboxes + '</div>' +
+            '<div class="form-group" style="margin-top:15px;"><label>Versi Modul</label><select id="ma_versi" class="form-control"><option value="ringkas">Ringkas</option><option value="lengkap" selected>Lengkap</option></select></div>' +
         '</div>' +
         buildActionButtons('modul_ajar') +
       '</div><div class="ai-output-container" id="ai-output-modul_ajar"></div></div>' +
 
-    // PANEL SOAL (PERSIS ASLI)
+    // PANEL SOAL
     '<div class="ai-panel hidden" id="ai-panel-soal">' +
       buildPanelHeader('Buat Soal Ujian', 'Buat paket soal lengkap dengan kunci, pembahasan, dan kisi-kisi.', 'fa-question-circle') +
       '<div class="card ai-form-card">' +
@@ -352,7 +346,7 @@ function renderAIGuruPage() {
         buildActionButtonsSoal() +
       '</div><div class="ai-output-container" id="ai-output-soal"></div></div>' +
 
-    // PANEL KOKURIKULER (PERSIS ASLI)
+    // PANEL KOKURIKULER
     '<div class="ai-panel hidden" id="ai-panel-kokurikuler">' +
       buildPanelHeader('Modul Kokurikuler', 'Susun modul projek kokurikuler berbasis 8 Dimensi Lulusan.', 'fa-users-cog') +
       '<div class="card ai-form-card">' +
@@ -363,286 +357,4 @@ function renderAIGuruPage() {
             '<div class="form-group"><label>Tahun Ajaran</label><input type="text" id="kk_tahunAjaran" class="form-control" value="2026/2027"></div>' +
         '</div></div>' +
         '<div class="soal-form-section"><div class="soal-form-section-title"><i class="fas fa-palette"></i> B. Tema Kegiatan</div>' +
-            '<div class="tema-tabs"><button type="button" class="tema-tab-btn active" onclick="switchTemaTab(\'resmi\', this)"><i class="fas fa-check-circle"></i> Tema Resmi</button><button type="button" class="tema-tab-btn" onclick="switchTemaTab(\'khusus\', this)"><i class="fas fa-pen"></i> Tema Khusus</button></div>' +
-            '<div class="tema-panel active" id="tema-panel-resmi"><div class="tema-grid">' +
-                TEMA_KOKURIKULER.map(function(t, idx) { return '<label class="tema-card"><input type="radio" name="kk_tema" value="' + t + '"' + (idx === 0 ? ' checked' : '') + '><span>' + t + '</span></label>'; }).join('') +
-            '</div></div>' +
-            '<div class="tema-panel" id="tema-panel-khusus"><div class="tema-khusus-input"><label>Tema Custom</label><input type="text" id="kk_temaKhusus" oninput="handleTemaKhususInput()" placeholder="Ketik tema bebas..."></div></div>' +
-        '</div>' +
-        '<div class="soal-form-section"><div class="soal-form-section-title" style="display:flex;justify-content:space-between;align-items:center;">' +
-            '<span><i class="fas fa-bullseye"></i> C. Target Dimensi Lulusan (maks 3)</span><span class="dimensi-counter ok" id="kk_dimensiCounter">0 / 3</span>' +
-        '</div><div class="ai-checkbox-grid">' +
-            FE_DIMENSI_LULUSAN.map(function(d) { return '<label class="ai-checkbox-item"><input type="checkbox" name="kk_dimensi" value="' + d.kode + '" onchange="handleDimensiChange(this)"><span><strong>' + d.kode + '</strong> — ' + d.nama + '</span></label>'; }).join('') +
-        '</div><div id="kk_dimensiWarning" style="display:none;font-size:11.5px;color:#991b1b;background:#fee2e2;padding:8px 12px;margin-top:10px;border-radius:8px;"><i class="fas fa-exclamation-triangle"></i> Maksimal 3 dimensi.</div></div>' +
-        '<div class="soal-form-section"><div class="soal-form-section-title"><i class="fas fa-graduation-cap"></i> D. Metodologi Pembelajaran</div>' +
-            '<div class="form-group"><label>Pendekatan Belajar</label><select id="kk_pendekatan" class="form-control">' +
-                PENDEKATAN_BELAJAR.map(function(p) { return '<option value="' + p.nama + '"' + (p.id === 'deep' ? ' selected' : '') + '>' + p.nama + '</option>'; }).join('') +
-            '</select></div>' +
-            '<div class="ai-form-grid"><div class="form-group"><label>Alokasi Waktu (JP)</label><input type="text" id="kk_alokasi" class="form-control" value="36 JP"></div>' +
-            '<div class="form-group"><label>Sesi Pertemuan</label><input type="text" id="kk_sesi" class="form-control" value="8 Sesi"></div></div>' +
-            '<div class="form-group" style="margin-bottom:0;"><label>Kondisi Lingkungan</label><select id="kk_kondisiLingkungan" class="form-control">' +
-                KONDISI_LINGKUNGAN.map(function(k) { return '<option value="' + k + '">' + k + '</option>'; }).join('') +
-            '</select></div>' +
-        '</div>' +
-        '<div class="soal-form-section"><div class="soal-form-section-title"><i class="fas fa-layer-group"></i> E. Integrasi Mata Pelajaran</div>' +
-            '<div class="mapel-chips-container" id="kk_mapelChips">' +
-                MAPEL_INTEGRASI.map(function(m) { return '<label class="mapel-chip"><input type="checkbox" name="kk_mapel" value="' + m + '" onchange="handleMapelChange(this)"><span>' + m + '</span></label>'; }).join('') +
-            '</div>' +
-            '<div class="mapel-manual-input"><input type="text" id="kk_mapelManualInput" placeholder="Tambah mapel manual..." onkeypress="if(event.key===\'Enter\'){event.preventDefault();tambahMapelManual();}"><button type="button" onclick="tambahMapelManual()"><i class="fas fa-plus"></i></button></div>' +
-            '<div class="mapel-tp-list" id="kk_mapelTPList"></div>' +
-            '<div class="mapel-empty" id="kk_mapelEmpty"><i class="fas fa-info-circle"></i> Belum ada mapel terpilih.</div>' +
-        '</div>' +
-        '<div class="soal-form-section"><div class="soal-form-section-title"><i class="fas fa-lightbulb"></i> F. Topik Projek</div><div class="form-group" style="margin-bottom:0;"><label>Topik / Sub-Tema Spesifik</label><input type="text" id="kk_topik" class="form-control" placeholder="Contoh: Pengolahan Limbah Logam..."></div></div>' +
-        '<div class="soal-form-section"><div class="soal-form-section-title"><i class="fas fa-align-left"></i> G. Deskripsi Singkat Projek</div><div class="form-group" style="margin-bottom:0;"><textarea id="kk_deskripsi" class="form-control" rows="3" placeholder="Kosongkan jika ingin AI kembangkan sendiri..."></textarea></div></div>' +
-        buildActionButtons('kokurikuler') +
-      '</div><div class="ai-output-container" id="ai-output-kokurikuler"></div></div>';
-
-  autoFillGuruFields();
-  restoreCPUploadFromState();
-  attachKognitifListeners();
-}
-
-// =====================================================================
-// SISA KODE DI BAWAH INI ADALAH FUNGSI ASLI DARI FILE KAMU
-// (Fungsi render output, buildPanelHeader, buildActionButtons, dll)
-// =====================================================================
-
-function buildPanelHeader(title, subtitle, icon) {
-  return '<div class="card ai-panel-header" style="background:#ecfdf5;border:1px solid #a7f3d0;padding:14px 18px;margin-bottom:14px;"><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;"><div style="font-size:1.6em;color:var(--primary);"><i class="fas ' + icon + '"></i></div><div style="flex:1;min-width:200px;"><div style="font-size:14px;font-weight:800;color:var(--primary-dark);">' + title + '</div><div style="font-size:12px;color:#065f46;margin-top:2px;">' + subtitle + '</div></div></div></div>';
-}
-function buildActionButtons(fitur) {
-  return '<div class="ai-form-actions"><button type="button" class="btn btn-primary ai-btn-generate" onclick="aiGuruSubmit(\'' + fitur + '\')"><i class="fas fa-magic"></i> Generate dengan AI</button><button type="button" class="btn btn-outline" onclick="aiGuruResetForm(\'' + fitur + '\')"><i class="fas fa-undo"></i> Reset Form</button></div>';
-}
-function buildActionButtonsProta() {
-  return '<div class="ai-form-actions"><button type="button" class="btn btn-primary ai-btn-generate" onclick="aiGuruSubmit(\'prota\')"><i class="fas fa-magic"></i> Generate Prota & Promes dengan AI</button><button type="button" class="btn btn-outline" onclick="aiGuruResetForm(\'prota\')"><i class="fas fa-undo"></i> Reset Form</button></div>';
-}
-function buildActionButtonsSoal() {
-  return '<div class="ai-form-actions"><button type="button" class="btn btn-primary ai-btn-generate" onclick="aiGuruSubmit(\'soal\')"><i class="fas fa-magic"></i> Buat Soal Otomatis</button><button type="button" class="btn btn-outline" onclick="aiGuruResetForm(\'soal\')"><i class="fas fa-undo"></i> Reset Form</button></div>';
-}
-function switchAITab(tabId) {
-  aiGuruState.activeTab = tabId;
-  document.querySelectorAll('.ai-tab-btn').forEach(function(btn) { btn.classList.toggle('active', btn.dataset.tab === tabId); });
-  document.querySelectorAll('.ai-panel').forEach(function(panel) { panel.classList.add('hidden'); });
-  var activePanel = document.getElementById('ai-panel-' + tabId);
-  if (activePanel) activePanel.classList.remove('hidden');
-}
-function toggleUploadCP() {
-  var checkbox = document.getElementById('pt_punyaFile');
-  var container = document.getElementById('pt_uploadContainer');
-  if (checkbox && container) container.style.display = checkbox.checked ? 'block' : 'none';
-}
-function handleCPUpload(input) {
-  var nameSpan = document.getElementById('pt_fileCP_name');
-  if (!nameSpan) return;
-  if (input.files && input.files[0]) {
-    var file = input.files[0];
-    aiGuruState.cpFileObject = file; aiGuruState.cpFileName = file.name; aiGuruState.cpFileSize = file.size;
-    nameSpan.textContent = '📎 ' + file.name;
-  } else {
-    aiGuruState.cpFileObject = null; aiGuruState.cpFileName = ''; aiGuruState.cpFileSize = 0;
-    nameSpan.textContent = 'Belum ada file dipilih';
-  }
-}
-function restoreCPUploadFromState() {
-  if (!aiGuruState.cpFileName) return;
-  var checkbox = document.getElementById('pt_punyaFile');
-  var container = document.getElementById('pt_uploadContainer');
-  var nameSpan = document.getElementById('pt_fileCP_name');
-  if (checkbox) checkbox.checked = true;
-  if (container) container.style.display = 'block';
-  if (nameSpan) nameSpan.textContent = '📎 ' + aiGuruState.cpFileName;
-}
-function hitungTotalJP() {
-  var mingguEl = document.getElementById('pt_mingguEfektif');
-  var jpEl = document.getElementById('pt_jpPerMinggu');
-  var displayEl = document.getElementById('pt_totalJPDisplay');
-  if (!mingguEl || !jpEl || !displayEl) return;
-  var minggu = parseInt(mingguEl.value, 10) || 0; var jp = parseInt(jpEl.value, 10) || 0;
-  displayEl.innerHTML = minggu + ' minggu × ' + jp + ' JP = <strong>' + (minggu * jp) + ' JP</strong> per semester | <strong>' + (minggu * jp * 2) + ' JP</strong> per tahun';
-}
-function hitungTotalSoal() {
-  var pg = parseInt(document.getElementById('so_jumlahPG').value, 10) || 0;
-  var isian = parseInt(document.getElementById('so_jumlahIsian').value, 10) || 0;
-  var esai = parseInt(document.getElementById('so_jumlahEsai').value, 10) || 0;
-  var total = pg + isian + esai;
-  document.getElementById('so_totalSoalDisplay').textContent = total;
-  if (total > 30) { document.getElementById('so_totalWarning').style.display = 'block'; } else { document.getElementById('so_totalWarning').style.display = 'none'; }
-}
-function updateProporsi() {
-  var mudah = parseInt(document.getElementById('so_propMudah').value, 10) || 0;
-  var sedang = parseInt(document.getElementById('so_propSedang').value, 10) || 0;
-  var sulit = parseInt(document.getElementById('so_propSulit').value, 10) || 0;
-  var total = mudah + sedang + sulit;
-  document.getElementById('so_valMudah').textContent = mudah + '%';
-  document.getElementById('so_valSedang').textContent = sedang + '%';
-  document.getElementById('so_valSulit').textContent = sulit + '%';
-  var warn = document.getElementById('so_proporsiWarning');
-  if (total === 100) { warn.className = 'proporsi-total-warning ok'; warn.innerHTML = '<i class="fas fa-check-circle"></i> Total: 100% — OK'; } 
-  else { warn.className = 'proporsi-total-warning err'; warn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Total: ' + total + '% (auto 100%)'; }
-}
-function attachKognitifListeners() {
-  ['so_kogC3','so_kogC4','so_kogC5','so_kogC6'].forEach(function(id) {
-    var el = document.getElementById(id);
-    if (el) el.addEventListener('change', function() {
-      var c5 = document.getElementById('so_kogC5').checked; var c6 = document.getElementById('so_kogC6').checked;
-      document.getElementById('so_hotsWarning').style.display = (c5 || c6) ? 'block' : 'none';
-    });
-  });
-}
-function switchTemaTab(tab, btnEl) {
-  document.querySelectorAll('.tema-tab-btn').forEach(function(b) { b.classList.remove('active'); }); btnEl.classList.add('active');
-  document.getElementById('tema-panel-resmi').classList.toggle('active', tab === 'resmi');
-  document.getElementById('tema-panel-khusus').classList.toggle('active', tab === 'khusus');
-}
-function handleTemaKhususInput() {
-  var val = document.getElementById('kk_temaKhusus').value.trim();
-  if (val.length > 0) { document.querySelectorAll('input[name="kk_tema"]').forEach(function(r) { r.checked = false; }); } 
-  else { document.querySelector('input[name="kk_tema"]').checked = true; }
-}
-function handleDimensiChange(checkbox) {
-  var checked = document.querySelectorAll('input[name="kk_dimensi"]:checked');
-  if (checked.length > 3) { checkbox.checked = false; document.getElementById('kk_dimensiWarning').style.display = 'block'; setTimeout(function(){ document.getElementById('kk_dimensiWarning').style.display = 'none'; }, 3000); checked = document.querySelectorAll('input[name="kk_dimensi"]:checked'); }
-  document.getElementById('kk_dimensiCounter').textContent = checked.length + ' / 3';
-}
-function handleMapelChange(checkbox) {
-  var mapel = checkbox.value; var safeMapel = mapel.replace(/[^a-zA-Z0-9]/g, '_');
-  var list = document.getElementById('kk_mapelTPList');
-  if (checkbox.checked) {
-    var card = document.createElement('div'); card.className = 'mapel-tp-card'; card.setAttribute('data-mapel', mapel); card.setAttribute('data-safe', safeMapel);
-    card.innerHTML = '<div class="mapel-tp-header"><span class="mapel-tp-name"><i class="fas fa-book"></i> ' + escapeHtml(mapel) + '</span><button type="button" class="mapel-tp-remove" data-safe="' + safeMapel + '" onclick="this.parentNode.parentNode.remove(); document.querySelector(\'.mapel-chip input[value=\\\'' + mapel + '\\\']\').checked = false; updateMapelEmptyState();"><i class="fas fa-times"></i></button></div><div><label>Tujuan Pembelajaran</label><textarea name="kk_tp_' + safeMapel + '" data-mapel-original="' + mapel + '" data-safe="' + safeMapel + '"></textarea></div>';
-    list.appendChild(card);
-  } else {
-    var existingCard = list.querySelector('[data-mapel="' + mapel + '"]'); if (existingCard) existingCard.remove();
-  }
-  updateMapelEmptyState();
-}
-function tambahMapelManual() {
-  var input = document.getElementById('kk_mapelManualInput'); var val = (input.value || '').trim();
-  if (!val) return;
-  if (document.querySelector('.mapel-chip input[value="' + val + '"]')) return;
-  var chip = document.createElement('label'); chip.className = 'mapel-chip'; chip.innerHTML = '<input type="checkbox" name="kk_mapel" value="' + val + '" checked onchange="handleMapelChange(this)"><span>' + val + '</span>';
-  document.getElementById('kk_mapelChips').appendChild(chip);
-  handleMapelChange(chip.querySelector('input')); input.value = '';
-}
-function updateMapelEmptyState() {
-  var list = document.getElementById('kk_mapelTPList'); var emptyEl = document.getElementById('kk_mapelEmpty');
-  emptyEl.style.display = list.querySelectorAll('.mapel-tp-card').length === 0 ? 'block' : 'none';
-}
-
-// GENERATE
-function aiGuruSubmit(fitur) {
-  if (aiGuruState.isLoading) aiGuruState.isLoading = false;
-  var params = collectFormParams(fitur);
-  if (!validateParams(fitur, params)) return;
-  aiGuruState.isLoading = true; aiGuruState.lastFitur = fitur; aiGuruState.lastParams = params;
-  var outputContainer = document.getElementById('ai-output-' + fitur);
-  outputContainer.innerHTML = '<div class="card ai-loading-card"><div class="ai-loading-spinner"></div><div class="ai-loading-text"><i class="fas fa-magic"></i> AI sedang menyusun dokumen...</div><div class="ai-loading-subtext">Proses ini memakan waktu 60-90 detik.</div></div>';
-  setFormButtonsDisabled(fitur, true);
-  google.script.run.withSuccessHandler(function(result) { aiGuruState.isLoading = false; aiGuruState.lastResult = result; setFormButtonsDisabled(fitur, false); renderAIOutput(fitur, result); }).withFailureHandler(function(err) {
-    aiGuruState.isLoading = false; setFormButtonsDisabled(fitur, false);
-    outputContainer.innerHTML = '<div class="card" style="background:#fee2e2;padding:18px;"><div style="font-weight:800;color:#991b1b;"><i class="fas fa-exclamation-circle"></i> Error</div><div>' + err.message + '</div></div>';
-  }).aiGuruGenerate(fitur, params);
-}
-
-function collectFormParams(fitur) {
-  function val(id) { var el = document.getElementById(id); return el ? el.value.trim() : ''; }
-  function check(id) { var el = document.getElementById(id); return el ? el.checked : false; }
-  if (fitur === 'prota') {
-    var semesterList = []; if (check('pt_semesterGanjil')) semesterList.push('Ganjil'); if (check('pt_semesterGenap')) semesterList.push('Genap');
-    return { namaGuru: val('pt_namaGuru'), nipGuru: val('pt_nipGuru'), sekolah: val('pt_sekolah'), mapel: val('pt_mapel'), jurusan: val('pt_jurusan'), fase: val('pt_fase'), kelas: val('pt_kelas'), tahunAjaran: val('pt_tahunAjaran'), semester: semesterList, kdCp: val('pt_kdCp'), cpFileName: aiGuruState.cpFileName, mingguEfektif: val('pt_mingguEfektif'), jpPerMinggu: val('pt_jpPerMinggu') };
-  }
-  if (fitur === 'modul_ajar') {
-    var dimensiCheckedMA = []; document.querySelectorAll('#ai-panel-modul_ajar input[name^="dimensi_"]:checked').forEach(function(el) { dimensiCheckedMA.push(el.value); });
-    return { namaGuru: val('ma_namaGuru'), nipGuru: val('ma_nipGuru'), tahunAjaran: val('ma_tahunAjaran'), jurusan: val('ma_jurusan'), fase: val('ma_fase'), kelas: val('ma_kelas'), mapel: val('ma_mapel'), materi: val('ma_materi'), jumlahPertemuan: val('ma_jumlahPertemuan'), alokasiPerPertemuan: val('ma_alokasiPerPertemuan'), modelPembelajaran: val('ma_modelPembelajaran'), targetPesertaDidik: val('ma_targetPesertaDidik'), kdCp: val('ma_kdCp'), kompetensiAwal: val('ma_kompetensiAwal'), tujuan: val('ma_tujuan'), saranaPrasarana: val('ma_saranaPrasarana'), dimensiLulusan: dimensiCheckedMA, versi: val('ma_versi') };
-  }
-  if (fitur === 'soal') {
-    var levelKog = []; if (check('so_kogC3')) levelKog.push('C3'); if (check('so_kogC4')) levelKog.push('C4'); if (check('so_kogC5')) levelKog.push('C5'); if (check('so_kogC6')) levelKog.push('C6');
-    return { namaGuru: val('so_namaGuru'), nipGuru: val('so_nipGuru'), sekolah: val('so_sekolah'), jurusan: val('so_jurusan'), mapel: val('so_mapel'), kelas: val('so_kelas'), tahunAjaran: val('so_tahunAjaran'), jenisAsesmen: val('so_jenisAsesmen'), alokasi: val('so_alokasi'), opsiPG: val('so_opsiPG'), jumlahPG: parseInt(val('so_jumlahPG')), jumlahIsian: parseInt(val('so_jumlahIsian')), jumlahEsai: parseInt(val('so_jumlahEsai')), totalSoal: parseInt(val('so_jumlahPG')) + parseInt(val('so_jumlahIsian')) + parseInt(val('so_jumlahEsai')), propMudah: val('so_propMudah'), propSedang: val('so_propSedang'), propSulit: val('so_propSulit'), levelKognitif: levelKog, pakaiIlustrasi: check('so_pakaiIlustrasi'), pakaiDiagram: check('so_pakaiDiagram'), pakaiPetaKonsep: check('so_pakaiPetaKonsep'), materi: val('so_materi'), kdCp: val('so_kdCp') };
-  }
-  if (fitur === 'kokurikuler') {
-    var dimensiCheckedKK = []; document.querySelectorAll('#ai-panel-kokurikuler input[name="kk_dimensi"]:checked').forEach(function(el) { dimensiCheckedKK.push(el.value); });
-    var temaResmi = ''; var radioChecked = document.querySelector('#ai-panel-kokurikuler input[name="kk_tema"]:checked'); if (radioChecked) temaResmi = radioChecked.value;
-    var integrasiMapel = []; var mapelTP = {};
-    document.querySelectorAll('#ai-panel-kokurikuler input[name="kk_mapel"]:checked').forEach(function(el) {
-      var mapelName = el.value; var safeMapel = mapelName.replace(/[^a-zA-Z0-9]/g, '_'); integrasiMapel.push(mapelName);
-      var tpTextarea = document.querySelector('#kk_mapelTPList textarea[data-safe="' + safeMapel + '"]'); mapelTP[mapelName] = tpTextarea ? tpTextarea.value.trim() : '';
-    });
-    return { namaGuru: val('kk_namaGuru'), sekolah: val('kk_sekolah'), kelas: val('kk_kelas'), tahunAjaran: val('kk_tahunAjaran'), tema: temaResmi, temaKhusus: val('kk_temaKhusus'), dimensi: dimensiCheckedKK, pendekatan: val('kk_pendekatan'), alokasi: val('kk_alokasi'), sesi: val('kk_sesi'), kondisiLingkungan: val('kk_kondisiLingkungan'), integrasiMapel: integrasiMapel, mapelTP: mapelTP, topik: val('kk_topik'), deskripsi: val('kk_deskripsi') };
-  }
-  return {};
-}
-
-function validateParams(fitur, params) {
-  if (fitur === 'prota') { if (!params.mapel) { Swal.fire('Peringatan', 'Isi Mata Pelajaran!', 'warning'); return false; } }
-  else if (fitur === 'modul_ajar') { if (!params.mapel || !params.materi) { Swal.fire('Peringatan', 'Isi Mapel & Materi!', 'warning'); return false; } }
-  else if (fitur === 'soal') { if (!params.mapel || !params.materi) { Swal.fire('Peringatan', 'Isi Mapel & Materi!', 'warning'); return false; } }
-  else if (fitur === 'kokurikuler') { if (!params.topik) { Swal.fire('Peringatan', 'Isi Topik Projek!', 'warning'); return false; } }
-  return true;
-}
-
-function setFormButtonsDisabled(fitur, disabled) {
-  var panel = document.getElementById('ai-panel-' + fitur); if (!panel) return;
-  panel.querySelectorAll('.ai-form-actions button').forEach(function(b) { b.disabled = disabled; b.style.opacity = disabled ? '0.5' : '1'; });
-}
-
-function renderAIOutput(fitur, result) {
-  var outputContainer = document.getElementById('ai-output-' + fitur); if (!outputContainer) return;
-  if (!result) { outputContainer.innerHTML = '<div class="card" style="background:#fee2e2;padding:18px;">Response kosong.</div>'; return; }
-  if (fitur === 'prota' && result.mode === 'ai') { renderProtaOutput(outputContainer, result); return; }
-  if (fitur === 'soal' && result.mode === 'ai') { renderSoalOutput(outputContainer, result); return; }
-  if (result.mode === 'ai' && result.html) {
-    outputContainer.innerHTML = '<div class="card ai-result-card"><div class="ai-result-toolbar"><div class="ai-result-badge ai-badge-success"><i class="fas fa-check-circle"></i> Berhasil</div><div class="ai-result-actions"><button type="button" class="btn btn-primary btn-sm" onclick="aiGuruDownloadWord()"><i class="fas fa-download"></i> Download Word</button></div></div><div class="ai-result-preview" id="ai-result-preview">' + result.html + '</div></div>'; return;
-  }
-  outputContainer.innerHTML = '<div class="card" style="background:#fee2e2;padding:18px;"><div style="font-weight:800;color:#991b1b;">Gagal.</div><div>' + (result.message || '') + '</div></div>';
-}
-
-function renderProtaOutput(container, result) {
-  var htmlProta = result.htmlProta || ''; var htmlPromes = result.htmlPromes || '';
-  container.innerHTML = '<div class="card ai-result-card"><div class="ai-result-toolbar"><div class="ai-result-badge ai-badge-success"><i class="fas fa-check-circle"></i> Berhasil</div><div class="ai-result-actions"><button type="button" class="btn btn-primary btn-sm" onclick="aiGuruDownloadProta()"><i class="fas fa-download"></i> Download Prota</button><button type="button" class="btn btn-primary btn-sm" onclick="aiGuruDownloadPromes()"><i class="fas fa-download"></i> Download Promes</button></div></div><div class="preview-subtabs"><button type="button" class="preview-subtab-btn active" onclick="switchPreviewTab(\'prota\', this)">Prota</button><button type="button" class="preview-subtab-btn" onclick="switchPreviewTab(\'promes\', this)">Promes</button></div><div class="ai-result-preview" id="preview-prota">' + htmlProta + '</div><div class="ai-result-preview hidden" id="preview-promes">' + htmlPromes + '</div></div>';
-}
-function switchPreviewTab(tab, btn) {
-  document.querySelectorAll('.preview-subtab-btn').forEach(function(b){ b.classList.remove('active'); }); btn.classList.add('active');
-  document.getElementById('preview-prota').classList.toggle('hidden', tab !== 'prota'); document.getElementById('preview-promes').classList.toggle('hidden', tab !== 'promes');
-}
-
-function renderSoalOutput(container, result) {
-  var html = result.html || '';
-  container.innerHTML = '<div class="card ai-result-card"><div class="ai-result-toolbar"><div class="ai-result-badge ai-badge-success"><i class="fas fa-check-circle"></i> Berhasil</div><div class="ai-result-actions"><button type="button" class="btn btn-primary btn-sm" onclick="aiGuruDownloadWord()"><i class="fas fa-download"></i> Download Word</button></div></div><div class="ai-result-preview">' + html + '</div></div>';
-}
-
-// Download Word (Menggunakan htmlDocx)
-function aiGuruDownloadWord() {
-  if (!aiGuruState.lastResult || !aiGuruState.lastResult.html) return Swal.fire('Error','Dokumen kosong','error');
-  var baseUrl = window.location.origin + window.location.pathname.replace('index.html', '').replace(/\/$/, '');
-  var headerLogo = '<div style="text-align:center; margin-bottom:20px;"><img src="' + baseUrl + '/logo.png" width="94" height="115" style="width:2.5cm;height:3.05cm;" /></div>';
-  var docHtml = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><style>body{font-family:"Times New Roman",serif;font-size:12pt;}table{width:100%;border-collapse:collapse;}th,td{border:1px solid black;padding:5px;}</style></head><body>' + headerLogo + aiGuruState.lastResult.html + '</body></html>';
-  var blob = htmlDocx.asBlob(docHtml); var url = URL.createObjectURL(blob); var a = document.createElement('a'); a.href = url; a.download = 'Dokumen.docx'; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
-}
-function aiGuruDownloadProta() {
-  if (!aiGuruState.lastResult || !aiGuruState.lastResult.htmlProta) return;
-  var baseUrl = window.location.origin + window.location.pathname.replace('index.html', '').replace(/\/$/, '');
-  var headerLogo = '<div style="text-align:center; margin-bottom:20px;"><img src="' + baseUrl + '/logo.png" width="94" height="115" style="width:2.5cm;height:3.05cm;" /></div>';
-  var docHtml = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"></head><body>' + headerLogo + aiGuruState.lastResult.htmlProta + '</body></html>';
-  var blob = htmlDocx.asBlob(docHtml); var url = URL.createObjectURL(blob); var a = document.createElement('a'); a.href = url; a.download = 'Prota.docx'; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
-}
-function aiGuruDownloadPromes() {
-  if (!aiGuruState.lastResult || !aiGuruState.lastResult.htmlPromes) return;
-  var baseUrl = window.location.origin + window.location.pathname.replace('index.html', '').replace(/\/$/, '');
-  var headerLogo = '<div style="text-align:center; margin-bottom:20px;"><img src="' + baseUrl + '/logo.png" width="94" height="115" style="width:2.5cm;height:3.05cm;" /></div>';
-  var docHtml = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"></head><body>' + headerLogo + aiGuruState.lastResult.htmlPromes + '</body></html>';
-  var blob = htmlDocx.asBlob(docHtml); var url = URL.createObjectURL(blob); var a = document.createElement('a'); a.href = url; a.download = 'Promes.docx'; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
-}
-
-function aiGuruResetForm(fitur) { if (!confirm('Reset form?')) return; location.reload(); }
-
-/* ⭐ FIX: Memaksa checkbox agar rapi meskipun berada di dalam form-group */
-.ai-checkbox-grid label.ai-checkbox-item {
-    display: flex !important;
-    align-items: center !important;
-    margin-bottom: 0 !important;
-    text-transform: none !important;
-    letter-spacing: 0 !important;
-    font-size: 12px !important;
-    font-weight: 600 !important;
-    color: #334155 !important;
-}
+            '<div class="tema-tabs"><button
