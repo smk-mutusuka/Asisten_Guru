@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AI Assistant Guru - SMK Mutusuka</title>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -12,45 +12,66 @@
 </head>
 <body>
 
-<div id="global-loader" class="hidden">
-  <div class="spinner"></div>
-  <p>Memproses data...</p>
-</div>
+<div id="global-loader" class="hidden"><div class="spinner"></div></div>
 
+<!-- HALAMAN LOGIN -->
 <div id="login-page">
   <div class="login-box">
     <img src="logo.png" alt="Logo" class="login-logo">
     <h2>AI Assistant Guru</h2>
     <p>SMK Muhammadiyah 1 Surakarta</p>
+    
+    <!-- TAB LOGIN -->
     <div class="login-tabs">
       <button type="button" class="login-tab-btn active" id="tab-btn-admin" onclick="switchLoginTab('admin')"><i class="fas fa-user-shield"></i> Admin</button>
       <button type="button" class="login-tab-btn" id="tab-btn-gtk" onclick="switchLoginTab('gtk')"><i class="fas fa-chalkboard-teacher"></i> GTK</button>
     </div>
+    
+    <!-- FORM ADMIN -->
     <form id="loginFormAdmin" onsubmit="handleLoginAdmin(event)">
-      <div class="form-group" style="text-align: left;"><label>Username Admin</label><input type="text" id="username" class="form-control" required placeholder="admin"></div>
-      <div class="form-group" style="text-align: left;"><label>Password</label><div class="password-wrapper"><input type="password" id="password" class="form-control" required placeholder="admin123"><i class="fas fa-eye toggle-password" onclick="togglePassword('password', this)"></i></div></div>
+      <div class="form-group" style="text-align: left;">
+        <label>Username Admin</label>
+        <input type="text" id="admin_user" class="form-control" required placeholder="admin">
+      </div>
+      <div class="form-group" style="text-align: left;">
+        <label>Password</label>
+        <div class="password-wrapper">
+          <input type="password" id="admin_pass" class="form-control" required placeholder="admin123">
+          <i class="fas fa-eye toggle-password" onclick="togglePassword('admin_pass', this)"></i>
+        </div>
+      </div>
       <button type="submit" class="btn btn-primary" style="width:100%; margin-top:8px; min-height:46px;"><i class="fas fa-sign-in-alt"></i> Masuk Admin</button>
     </form>
+
+    <!-- FORM GTK -->
     <form id="loginFormGtk" onsubmit="handleLoginGTK(event)" class="hidden">
-      <div class="form-group" style="text-align: left;"><label>NBM</label><input type="text" id="nbm_login" class="form-control" required placeholder="1172972"></div>
-      <div class="form-group" style="text-align: left;"><label>Password</label><div class="password-wrapper"><input type="password" id="password_gtk" class="form-control" required placeholder="NBM Anda"><i class="fas fa-eye toggle-password" onclick="togglePassword('password_gtk', this)"></i></div></div>
+      <div class="form-group" style="text-align: left;">
+        <label>NBM</label>
+        <input type="text" id="gtk_nbm" class="form-control" required placeholder="1172972">
+      </div>
+      <div class="form-group" style="text-align: left;">
+        <label>Password</label>
+        <div class="password-wrapper">
+          <input type="password" id="gtk_pass" class="form-control" required placeholder="NBM Anda">
+          <i class="fas fa-eye toggle-password" onclick="togglePassword('gtk_pass', this)"></i>
+        </div>
+      </div>
       <button type="submit" class="btn btn-primary" style="width:100%; margin-top:8px; min-height:46px;"><i class="fas fa-sign-in-alt"></i> Masuk GTK</button>
     </form>
   </div>
   <div class="login-footer">Developed by <strong>Joko Harinto</strong><br><span style="font-size: 10px;">Ver. 1.0.1126</span></div>
 </div>
 
+<!-- HALAMAN UTAMA -->
 <div id="app-layout" class="hidden">
   <div class="topbar">
-    <div class="topbar-brand"><i class="fas fa-robot"></i> AI Guru Mutusuka</div>
-    <div class="user-info" style="display:flex; align-items:center; gap:10px;">
+    <div class="brand" style="display:flex; align-items:center; gap:8px;"><i class="fas fa-robot"></i> AI Guru Mutusuka</div>
+    <div class="user-info" style="display:flex; align-items:center; gap:15px;">
       <span id="user-name" style="font-weight:700;">Nama Guru</span>
       <button class="btn btn-outline btn-sm" style="background:#fff;" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Keluar</button>
     </div>
   </div>
-
   <div class="main-content">
-    <!-- Container tempat JS menyuntikkan form aslinya -->
     <div id="ai-guru-content"></div>
   </div>
 </div>
