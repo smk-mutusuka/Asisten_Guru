@@ -1,5 +1,4 @@
-// ⚠️ GANTI DENGAN URL WEB APP APPS SCRIPT KAMU
-var BACKEND_URL = 'https://script.google.com/macros/s/AKfycbyUAYG8PVKtXEOI-NrlmNMR_qk2oNm-0t2Ju0TSohz4-cbqnfUJtjaQyGOJm-Hqx9lh/exec';
+var BACKEND_URL = 'URL_WEB_APP_KAMU_DISINI'; // ⚠️ GANTI DENGAN URL APPS SCRIPT KAMU
 var currentUser = null;
 var lastResult = null;
 var lastFitur = null;
@@ -19,7 +18,6 @@ window.google.script.run = {
           chain[fn] = function() {
             var args = Array.prototype.slice.call(arguments);
             
-            // ⭐ PENGAMAN TIMEOUT (Maksimal 120 detik)
             var controller = new AbortController();
             var timeoutId = setTimeout(function() { controller.abort(); }, 120000); 
 
@@ -48,16 +46,14 @@ window.google.script.run = {
 };
 
 // =============================================
-// UI LOGIN & TAB (SUDAH DIPERBAIKI)
+// UI LOGIN & TAB
 // =============================================
 function switchLoginTab(role) {
-  // Sembunyikan semua form & hapus status aktif
   document.getElementById('loginFormAdmin').classList.add('hidden');
   document.getElementById('loginFormGtk').classList.add('hidden');
   document.getElementById('tab-btn-admin').classList.remove('active');
   document.getElementById('tab-btn-gtk').classList.remove('active');
 
-  // Tampilkan yang dipilih
   if (role === 'admin') {
     document.getElementById('tab-btn-admin').classList.add('active');
     document.getElementById('loginFormAdmin').classList.remove('hidden');
@@ -91,7 +87,7 @@ function handleLoginAdmin(e) {
     }
   }).withFailureHandler(function(err) {
     hideLoading(); Swal.fire({ icon: 'error', title: 'Login Admin Gagal', text: err.message });
-  }).doLogin(u, p); // Memanggil fungsi Admin
+  }).doLogin(u, p); 
 }
 
 function handleLoginGTK(e) {
@@ -109,7 +105,7 @@ function handleLoginGTK(e) {
     }
   }).withFailureHandler(function(err) {
     hideLoading(); Swal.fire({ icon: 'error', title: 'Login GTK Gagal', text: err.message });
-  }).doGtkLogin(nbm, pass); // Memanggil fungsi GTK
+  }).doGtkLogin(nbm, pass); 
 }
 
 function masukKeApp(nama) {
@@ -132,7 +128,7 @@ function showLoading() { document.getElementById('global-loader').classList.remo
 function hideLoading() { document.getElementById('global-loader').classList.add('hidden'); }
 
 // =========================================================================
-// ⬇️ KODE ASLI FORM AI GURU (Sesuai file awalmu)
+// KODE FORM AI GURU (NAMA & NBM DIKUNCI)
 // =========================================================================
 var FE_SCHOOL_LOGO_URL = "https://lh3.googleusercontent.com/d/1d1xBvybSKr-I8d_LOYZwdEV1TlVgptfo";
 var FE_SMK_JURUSAN = [
@@ -248,14 +244,14 @@ function renderAIGuruPage() {
       '<button type="button" class="ai-tab-btn" data-tab="kokurikuler" onclick="switchAITab(\'kokurikuler\')"><i class="fas fa-users-cog"></i> Kokurikuler</button>' +
     '</div>' +
     
-    // PANEL PROTA
+    // PANEL PROTA (READONLY DITAMBAHKAN)
     '<div class="ai-panel" id="ai-panel-prota">' +
       buildPanelHeader('Prota & Promes', 'Buat Program Tahunan (Prota) dan Program Semester (Promes) sekaligus.', 'fa-calendar-alt') +
       '<div class="card ai-form-card">' +
         '<div class="ai-form-section"><div class="ai-form-section-title"><i class="fas fa-id-card"></i> A. Identitas</div><div class="ai-form-grid">' +
-            '<div class="form-group"><label><i class="fas fa-user-tie"></i> Nama Guru</label><input type="text" id="pt_namaGuru" class="form-control" placeholder="Nama lengkap"></div>' +
-            '<div class="form-group"><label><i class="fas fa-id-card"></i> NIP/NBM</label><input type="text" id="pt_nipGuru" class="form-control" placeholder="NIP atau NBM"></div>' +
-            '<div class="form-group"><label><i class="fas fa-school"></i> Satuan Pendidikan</label><input type="text" id="pt_sekolah" class="form-control" value="SMK Muhammadiyah 1 Surakarta" placeholder="Nama sekolah"></div>' +
+            '<div class="form-group"><label><i class="fas fa-user-tie"></i> Nama Guru</label><input type="text" id="pt_namaGuru" class="form-control" readonly placeholder="Nama lengkap"></div>' +
+            '<div class="form-group"><label><i class="fas fa-id-card"></i> NIP/NBM</label><input type="text" id="pt_nipGuru" class="form-control" readonly placeholder="NIP atau NBM"></div>' +
+            '<div class="form-group"><label><i class="fas fa-school"></i> Satuan Pendidikan</label><input type="text" id="pt_sekolah" class="form-control" readonly value="SMK Muhammadiyah 1 Surakarta" placeholder="Nama sekolah"></div>' +
             '<div class="form-group"><label><i class="fas fa-book"></i> Mata Pelajaran</label><input type="text" id="pt_mapel" class="form-control" placeholder="Contoh: SMAW"></div>' +
             '<div class="form-group"><label><i class="fas fa-graduation-cap"></i> Jurusan</label><select id="pt_jurusan" class="form-control"><option value="">-- Pilih --</option>' + jurusanOptions + '</select></div>' +
             '<div class="form-group"><label><i class="fas fa-layer-group"></i> Fase</label><select id="pt_fase" class="form-control"><option value="">-- Pilih --</option>' + faseOptions + '</select></div>' +
@@ -278,13 +274,13 @@ function renderAIGuruPage() {
         buildActionButtonsProta() +
       '</div><div class="ai-output-container" id="ai-output-prota"></div></div>' +
 
-    // PANEL MODUL AJAR
+    // PANEL MODUL AJAR (READONLY DITAMBAHKAN)
     '<div class="ai-panel hidden" id="ai-panel-modul_ajar">' +
       buildPanelHeader('Modul Ajar SMK', 'Susun modul ajar lengkap sesuai Kurikulum Merdeka dengan K3LH & standar industri.', 'fa-book-open') +
       '<div class="card ai-form-card">' +
         '<div class="ai-form-section"><div class="ai-form-section-title"><i class="fas fa-info-circle"></i> Informasi Dasar</div><div class="ai-form-grid">' +
-            '<div class="form-group"><label>Nama Guru</label><input type="text" id="ma_namaGuru" class="form-control" placeholder="Nama lengkap"></div>' +
-            '<div class="form-group"><label>NIP/NBM</label><input type="text" id="ma_nipGuru" class="form-control" placeholder="NIP/NBM"></div>' +
+            '<div class="form-group"><label>Nama Guru</label><input type="text" id="ma_namaGuru" class="form-control" readonly placeholder="Nama lengkap"></div>' +
+            '<div class="form-group"><label>NIP/NBM</label><input type="text" id="ma_nipGuru" class="form-control" readonly placeholder="NIP/NBM"></div>' +
             '<div class="form-group"><label>Tahun Pelajaran</label><input type="text" id="ma_tahunAjaran" class="form-control" value="2026/2027"></div>' +
             '<div class="form-group"><label>Jurusan</label><select id="ma_jurusan" class="form-control"><option value="">-- Pilih --</option>' + jurusanOptions + '</select></div>' +
             '<div class="form-group"><label>Fase</label><select id="ma_fase" class="form-control"><option value="">-- Pilih --</option>' + faseOptions + '</select></div>' +
@@ -311,14 +307,14 @@ function renderAIGuruPage() {
         buildActionButtons('modul_ajar') +
       '</div><div class="ai-output-container" id="ai-output-modul_ajar"></div></div>' +
 
-    // PANEL SOAL
+    // PANEL SOAL (READONLY DITAMBAHKAN)
     '<div class="ai-panel hidden" id="ai-panel-soal">' +
       buildPanelHeader('Buat Soal Ujian', 'Buat paket soal lengkap dengan kunci, pembahasan, dan kisi-kisi.', 'fa-question-circle') +
       '<div class="card ai-form-card">' +
         '<div class="soal-form-section"><div class="soal-form-section-title"><i class="fas fa-id-card"></i> A. Identitas & Asesmen</div><div class="ai-form-grid">' +
-            '<div class="form-group"><label>Nama Guru</label><input type="text" id="so_namaGuru" class="form-control" placeholder="Nama lengkap"></div>' +
-            '<div class="form-group"><label>NIP/NBM</label><input type="text" id="so_nipGuru" class="form-control" placeholder="NIP/NBM"></div>' +
-            '<div class="form-group"><label>Satuan Pendidikan</label><input type="text" id="so_sekolah" class="form-control" value="SMK Muhammadiyah 1 Surakarta"></div>' +
+            '<div class="form-group"><label>Nama Guru</label><input type="text" id="so_namaGuru" class="form-control" readonly placeholder="Nama lengkap"></div>' +
+            '<div class="form-group"><label>NIP/NBM</label><input type="text" id="so_nipGuru" class="form-control" readonly placeholder="NIP/NBM"></div>' +
+            '<div class="form-group"><label>Satuan Pendidikan</label><input type="text" id="so_sekolah" class="form-control" readonly value="SMK Muhammadiyah 1 Surakarta"></div>' +
             '<div class="form-group"><label>Jurusan</label><select id="so_jurusan" class="form-control"><option value="">-- Pilih --</option>' + jurusanOptions + '</select></div>' +
             '<div class="form-group"><label>Mata Pelajaran</label><input type="text" id="so_mapel" class="form-control" placeholder="Contoh: Teknik Pemesinan Bubut"></div>' +
             '<div class="form-group"><label>Kelas</label><select id="so_kelas" class="form-control"><option value="X">X</option><option value="XI">XI</option><option value="XII">XII</option></select></div>' +
@@ -360,13 +356,13 @@ function renderAIGuruPage() {
         buildActionButtonsSoal() +
       '</div><div class="ai-output-container" id="ai-output-soal"></div></div>' +
 
-    // PANEL KOKURIKULER
+    // PANEL KOKURIKULER (READONLY DITAMBAHKAN)
     '<div class="ai-panel hidden" id="ai-panel-kokurikuler">' +
       buildPanelHeader('Modul Kokurikuler', 'Susun modul projek kokurikuler berbasis 8 Dimensi Lulusan.', 'fa-users-cog') +
       '<div class="card ai-form-card">' +
         '<div class="soal-form-section"><div class="soal-form-section-title"><i class="fas fa-id-card"></i> A. Identitas Umum</div><div class="ai-form-grid">' +
-            '<div class="form-group"><label>Nama Penyusun</label><input type="text" id="kk_namaGuru" class="form-control" placeholder="Nama lengkap"></div>' +
-            '<div class="form-group"><label>Instansi</label><input type="text" id="kk_sekolah" class="form-control" value="SMK Muhammadiyah 1 Surakarta" readonly></div>' +
+            '<div class="form-group"><label>Nama Penyusun</label><input type="text" id="kk_namaGuru" class="form-control" readonly placeholder="Nama lengkap"></div>' +
+            '<div class="form-group"><label>Instansi</label><input type="text" id="kk_sekolah" class="form-control" readonly value="SMK Muhammadiyah 1 Surakarta"></div>' +
             '<div class="form-group"><label>Jenjang / Kelas</label><select id="kk_kelas" class="form-control"><option value="X">Kelas X</option><option value="XI" selected>Kelas XI</option><option value="XII">Kelas XII</option></select></div>' +
             '<div class="form-group"><label>Tahun Ajaran</label><input type="text" id="kk_tahunAjaran" class="form-control" value="2026/2027"></div>' +
         '</div></div>' +
