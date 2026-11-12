@@ -1,5 +1,4 @@
-// ⚠️ MASUKKAN URL WEB APP KAMU DISINI
-var BACKEND_URL = 'https://script.google.com/macros/s/AKfycbyUAYG8PVKtXEOI-NrlmNMR_qk2oNm-0t2Ju0TSohz4-cbqnfUJtjaQyGOJm-Hqx9lh/exec'; 
+var BACKEND_URL = 'URL_WEB_APP_KAMU_DISINI'; // ⚠️ GANTI DENGAN URL APPS SCRIPT KAMU
 var FETCH_TIMEOUT_MS = 120000; 
 
 var currentUser = null;
@@ -46,6 +45,19 @@ function switchLoginTab(role) {
   }
 }
 
+function togglePassword(inputId, iconElement) {
+  var input = document.getElementById(inputId);
+  if (input.type === 'password') {
+    input.type = 'text';
+    iconElement.classList.remove('fa-eye');
+    iconElement.classList.add('fa-eye-slash');
+  } else {
+    input.type = 'password';
+    iconElement.classList.remove('fa-eye-slash');
+    iconElement.classList.add('fa-eye');
+  }
+}
+
 function handleLoginAdmin(e) {
   e.preventDefault();
   var u = document.getElementById('username').value.trim();
@@ -55,7 +67,7 @@ function handleLoginAdmin(e) {
   callBackend('doLogin', [u, p], function(res) {
     hideLoading();
     if (res.status && (res.role === 'Admin' || res.role === 'AdminPKL')) {
-      currentUser = { Nama_GTK: res.username, NBM: '-' }; // Dummy user untuk Admin
+      currentUser = { Nama_GTK: res.username, NBM: '-' }; 
       masukKeApp("Admin");
     }
   }, function(err) {
@@ -117,12 +129,13 @@ function switchTab(tabId) {
 }
 
 // =============================================
-// GENERATE AI
+// GENERATE AI (LENGKAP)
 // =============================================
 function generateAI(fitur) {
   if (!currentUser) return Swal.fire('Error', 'Sesi habis, silakan login ulang.', 'error');
   
   var params = {};
+  
   if (fitur === 'prota') {
     params = {
       namaGuru: currentUser.Nama_GTK, nipGuru: currentUser.NBM,
@@ -133,27 +146,45 @@ function generateAI(fitur) {
     if (!params.mapel) return Swal.fire('Error', 'Isi Mata Pelajaran dulu!', 'warning');
   } 
   else if (fitur === 'modul_ajar') {
+    var dims = [];
+    document.querySelectorAll('input[name="ma_dimensi"]:checked').forEach(cb => dims.push(cb.value));
+    
     params = {
       namaGuru: currentUser.Nama_GTK, nipGuru: currentUser.NBM,
       mapel: document.getElementById('ma_mapel').value, materi: document.getElementById('ma_materi').value,
-      jumlahPertemuan: document.getElementById('ma_pertemuan').value, sekolah: "SMK Muhammadiyah 1 Surakarta"
+      jumlahPertemuan: document.getElementById('ma_pertemuan').value, 
+      saranaPrasarana: document.getElementById('ma_sarana').value,
+      dimensiLulusan: dims,
+      sekolah: "SMK Muhammadiyah 1 Surakarta", versi: "lengkap"
     };
     if (!params.mapel || !params.materi) return Swal.fire('Error', 'Isi Mapel dan Materi dulu!', 'warning');
   }
   else if (fitur === 'soal') {
+    var kogn = [];
+    document.querySelectorAll('input[name="so_kognitif"]:checked').forEach(cb => kogn.push(cb.value));
+
     params = {
       namaGuru: currentUser.Nama_GTK, nipGuru: currentUser.NBM,
       mapel: document.getElementById('so_mapel').value, materi: document.getElementById('so_materi').value,
-      jumlahPG: document.getElementById('so_pg').value, jumlahEsai: document.getElementById('so_esai').value, jumlahIsian: 0,
-      levelKognitif: ["C3", "C4"], propMudah: 30, propSedang: 50, propSulit: 20, opsiPG: 4,
+      jumlahPG: parseInt(document.getElementById('so_pg').value), 
+      jumlahEsai: parseInt(document.getElementById('so_esai').value), 
+      jumlahIsian: 0,
+      levelKognitif: kogn, 
+      propMudah: 30, propSedang: 50, propSulit: 20, opsiPG: 4,
       sekolah: "SMK Muhammadiyah 1 Surakarta"
     };
     if (!params.mapel || !params.materi) return Swal.fire('Error', 'Isi Mapel dan Materi dulu!', 'warning');
   }
   else if (fitur === 'kokurikuler') {
+    var dimsKK = [];
+    document.querySelectorAll('input[name="kk_dimensi"]:checked').forEach(cb => dimsKK.push(cb.value));
+
     params = {
-      namaGuru: currentUser.Nama_GTK, tema: document.getElementById('kk_tema').value,
-      topik: document.getElementById('kk_topik').value, kelas: "XI", sekolah: "SMK Muhammadiyah 1 Surakarta"
+      namaGuru: currentUser.Nama_GTK, 
+      tema: document.getElementById('kk_tema').value,
+      topik: document.getElementById('kk_topik').value, 
+      dimensi: dimsKK,
+      kelas: "XI", sekolah: "SMK Muhammadiyah 1 Surakarta"
     };
     if (!params.topik) return Swal.fire('Error', 'Isi Topik Projek dulu!', 'warning');
   }
@@ -230,20 +261,5 @@ function downloadWord() {
   Swal.fire({ icon: 'success', title: 'Berhasil', text: 'File Word diunduh beserta Logo', timer: 1500, showConfirmButton: false });
 }
 
-// =============================================
-// FUNGSI LIHAT PASSWORD
-// =============================================
-function togglePassword(inputId, iconElement) {
-  var input = document.getElementById(inputId);
-  if (input.type === 'password') {
-    input.type = 'text';
-    iconElement.classList.remove('fa-eye');
-    iconElement.classList.add('fa-eye-slash');
-  } else {
-    input.type = 'password';
-    iconElement.classList.remove('fa-eye-slash');
-    iconElement.classList.add('fa-eye');
-  }
-}
 function showLoading() { document.getElementById('global-loader').classList.remove('hidden'); }
 function hideLoading() { document.getElementById('global-loader').classList.add('hidden'); }
