@@ -4,61 +4,35 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AI Assistant Guru - SMK Mutusuka</title>
-  
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdn.jsdelivr.net/npm/html-docx-js@0.3.1/dist/html-docx.min.js"></script>
-  
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-<div id="global-loader" class="hidden">
-  <div class="spinner"></div>
-  <p>Memproses data...</p>
-</div>
+<div id="global-loader" class="hidden"><div class="spinner"></div></div>
 
 <!-- LOGIN -->
 <div id="login-page">
   <div class="login-box">
-    <img src="logo.png" alt="Logo SMK" class="login-logo">
+    <img src="logo.png" alt="Logo" class="login-logo">
     <h2>AI Assistant Guru</h2>
     <p>SMK Muhammadiyah 1 Surakarta</p>
-
     <div class="login-tabs">
       <button type="button" class="login-tab-btn active" id="tab-btn-admin" onclick="switchLoginTab('admin')"><i class="fas fa-user-shield"></i> Admin</button>
       <button type="button" class="login-tab-btn" id="tab-btn-gtk" onclick="switchLoginTab('gtk')"><i class="fas fa-chalkboard-teacher"></i> GTK</button>
     </div>
-    
-    <form id="loginFormAdmin" onsubmit="handleLoginAdmin(event)" autocomplete="off">
-      <div class="form-group" style="text-align: left;">
-        <label for="username">Username Admin</label>
-        <input type="text" id="username" class="form-control" required placeholder="admin">
-      </div>
-      <div class="form-group" style="text-align: left;">
-        <label for="password">Password</label>
-        <div class="password-wrapper">
-          <input type="password" id="password" class="form-control" required placeholder="admin123">
-          <i class="fas fa-eye toggle-password" onclick="togglePassword('password', this)"></i>
-        </div>
-      </div>
-      <button type="submit" class="btn btn-primary" style="width:100%; margin-top:8px; min-height:46px;"><i class="fas fa-sign-in-alt"></i> Masuk Admin</button>
+    <form id="loginFormAdmin" onsubmit="handleLoginAdmin(event)">
+      <div class="form-group" style="text-align: left;"><label>Username Admin</label><input type="text" id="username" class="form-control" required placeholder="admin"></div>
+      <div class="form-group" style="text-align: left;"><label>Password</label><div class="password-wrapper"><input type="password" id="password" class="form-control" required placeholder="admin123"><i class="fas fa-eye toggle-password" onclick="togglePassword('password', this)"></i></div></div>
+      <button type="submit" class="btn btn-primary" style="width:100%; margin-top:8px;"><i class="fas fa-sign-in-alt"></i> Masuk Admin</button>
     </form>
-
-    <form id="loginFormGtk" onsubmit="handleLoginGTK(event)" autocomplete="off" class="hidden">
-      <div class="form-group" style="text-align: left;">
-        <label for="nbm_login"><i class="fas fa-id-badge"></i> NBM</label>
-        <input type="text" id="nbm_login" class="form-control" required placeholder="1172972">
-      </div>
-      <div class="form-group" style="text-align: left;">
-        <label for="password_gtk"><i class="fas fa-lock"></i> Password</label>
-        <div class="password-wrapper">
-          <input type="password" id="password_gtk" class="form-control" required placeholder="NBM Anda">
-          <i class="fas fa-eye toggle-password" onclick="togglePassword('password_gtk', this)"></i>
-        </div>
-      </div>
-      <button type="submit" class="btn btn-primary" style="width:100%; margin-top:8px; min-height:46px;"><i class="fas fa-sign-in-alt"></i> Masuk GTK</button>
+    <form id="loginFormGtk" onsubmit="handleLoginGTK(event)" class="hidden">
+      <div class="form-group" style="text-align: left;"><label>NBM</label><input type="text" id="nbm_login" class="form-control" required placeholder="1172972"></div>
+      <div class="form-group" style="text-align: left;"><label>Password</label><div class="password-wrapper"><input type="password" id="password_gtk" class="form-control" required placeholder="NBM Anda"><i class="fas fa-eye toggle-password" onclick="togglePassword('password_gtk', this)"></i></div></div>
+      <button type="submit" class="btn btn-primary" style="width:100%; margin-top:8px;"><i class="fas fa-sign-in-alt"></i> Masuk GTK</button>
     </form>
   </div>
   <div class="login-footer">Developed by <strong>Joko Harinto</strong><br><span style="font-size: 10px;">Ver. 1.0.1126</span></div>
@@ -68,10 +42,7 @@
 <div id="app-layout" class="hidden">
   <div class="topbar">
     <div class="brand"><i class="fas fa-robot"></i> AI Guru Mutusuka</div>
-    <div class="user-info">
-      <span id="user-name">Nama Guru</span>
-      <button class="btn btn-outline btn-sm" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Keluar</button>
-    </div>
+    <div class="user-info"><span id="user-name">Nama Guru</span><button class="btn btn-outline btn-sm" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Keluar</button></div>
   </div>
 
   <div class="main-content">
@@ -89,7 +60,7 @@
         <div class="ai-form-grid">
           <div class="form-group"><label>Nama Guru</label><input type="text" id="pt_namaGuru" class="form-control" readonly></div>
           <div class="form-group"><label>NIP/NBM</label><input type="text" id="pt_nipGuru" class="form-control" readonly></div>
-          <div class="form-group"><label>Mata Pelajaran</label><input type="text" id="pt_mapel" class="form-control" placeholder="Contoh: SMAW" required></div>
+          <div class="form-group"><label>Mata Pelajaran</label><input type="text" id="pt_mapel" class="form-control" placeholder="Contoh: SMAW"></div>
           <div class="form-group"><label>Kelas</label><select id="pt_kelas" class="form-control"><option value="10">10</option><option value="11" selected>11</option><option value="12">12</option></select></div>
         </div>
         <div class="ai-form-section-title"><i class="fas fa-clock"></i> B. Modal Waktu</div>
@@ -114,7 +85,8 @@
         </div>
         <div class="ai-form-section-title"><i class="fas fa-tools"></i> Sarana & Dimensi Lulusan</div>
         <div class="form-group"><label>Sarana & Prasarana</label><input type="text" id="ma_sarana" class="form-control" placeholder="Contoh: Lab Komputer, Software AutoCAD..."></div>
-        <div class="form-group"><label>Dimensi Profil Lulusan (Pilih 2-3)</label>
+        <div class="form-group">
+          <label>Dimensi Profil Lulusan (Pilih 2-3)</label>
           <div class="ai-checkbox-grid">
             <label class="ai-checkbox-item"><input type="checkbox" name="ma_dimensi" value="D1"><span><strong>D1</strong> — Keimanan</span></label>
             <label class="ai-checkbox-item"><input type="checkbox" name="ma_dimensi" value="D2"><span><strong>D2</strong> — Kewargaan</span></label>
@@ -164,7 +136,7 @@
           <div class="form-group"><label>Topik Projek</label><input type="text" id="kk_topik" class="form-control" placeholder="Contoh: Pengolahan Limbah Logam"></div>
         </div>
         <div class="ai-form-section-title"><i class="fas fa-bullseye"></i> B. Dimensi Lulusan</div>
-        <div class="ai-checkbox-grid">
+        <div class="ai-checkbox-grid" style="grid-template-columns: 1fr 1fr;">
           <label class="ai-checkbox-item"><input type="checkbox" name="kk_dimensi" value="D1"><span><strong>D1</strong> — Keimanan</span></label>
           <label class="ai-checkbox-item"><input type="checkbox" name="kk_dimensi" value="D2"><span><strong>D2</strong> — Kewargaan</span></label>
           <label class="ai-checkbox-item"><input type="checkbox" name="kk_dimensi" value="D3"><span><strong>D3</strong> — Penalaran Kritis</span></label>
@@ -178,7 +150,6 @@
     </div>
   </div>
 </div>
-
 <script src="js-ai-guru.js"></script>
 </body>
 </html>
