@@ -1,4 +1,4 @@
-var BACKEND_URL = 'URL_WEB_APP_KAMU_DISINI'; // ⚠️ GANTI DENGAN URL APPS SCRIPT KAMU
+var BACKEND_URL = 'https://script.google.com/macros/s/AKfycbyUAYG8PVKtXEOI-NrlmNMR_qk2oNm-0t2Ju0TSohz4-cbqnfUJtjaQyGOJm-Hqx9lh/exec'; // ⚠️ GANTI DENGAN URL APPS SCRIPT KAMU
 var currentUser = null;
 var lastResult = null;
 var lastFitur = null;
