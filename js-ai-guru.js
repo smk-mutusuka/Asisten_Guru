@@ -1,9 +1,11 @@
 // ⚠️ GANTI DENGAN URL WEB APP APPS SCRIPT KAMU
 var BACKEND_URL = 'https://script.google.com/macros/s/AKfycbyUAYG8PVKtXEOI-NrlmNMR_qk2oNm-0t2Ju0TSohz4-cbqnfUJtjaQyGOJm-Hqx9lh/exec';
 var currentUser = null;
+var lastResult = null;
+var lastFitur = null;
 
 // =============================================
-// JEMBATAN BACKEND
+// JEMBATAN BACKEND (DENGAN TIMEOUT 2 MENIT)
 // =============================================
 window.google = window.google || {};
 window.google.script = window.google.script || {};
@@ -16,16 +18,27 @@ window.google.script.run = {
         allowedFuncs.forEach(function(fn) {
           chain[fn] = function() {
             var args = Array.prototype.slice.call(arguments);
+            
+            // ⭐ PENGAMAN TIMEOUT (Maksimal 120 detik)
+            var controller = new AbortController();
+            var timeoutId = setTimeout(function() { controller.abort(); }, 120000); 
+
             fetch(BACKEND_URL, {
               method: 'POST',
-              body: JSON.stringify({ fn: fn, args: args })
+              body: JSON.stringify({ fn: fn, args: args }),
+              signal: controller.signal
             })
             .then(res => res.json())
             .then(res => {
+              clearTimeout(timeoutId);
               if (res.success) { if (successCb) successCb(res.data); }
               else { if (failCb) failCb(new Error(res.error)); }
             })
-            .catch(err => { if (failCb) failCb(err); });
+            .catch(err => {
+              clearTimeout(timeoutId);
+              if (err.name === 'AbortError') err = new Error('Koneksi Timeout. AI terlalu lama memproses (lebih dari 2 menit). Silakan coba lagi.');
+              if (failCb) failCb(err);
+            });
           };
         });
         return chain;
