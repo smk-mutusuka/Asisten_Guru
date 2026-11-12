@@ -230,5 +230,20 @@ function downloadWord() {
   Swal.fire({ icon: 'success', title: 'Berhasil', text: 'File Word diunduh beserta Logo', timer: 1500, showConfirmButton: false });
 }
 
+// =============================================
+// FUNGSI LIHAT PASSWORD
+// =============================================
+function togglePassword(inputId, iconElement) {
+  var input = document.getElementById(inputId);
+  if (input.type === 'password') {
+    input.type = 'text';
+    iconElement.classList.remove('fa-eye');
+    iconElement.classList.add('fa-eye-slash');
+  } else {
+    input.type = 'password';
+    iconElement.classList.remove('fa-eye-slash');
+    iconElement.classList.add('fa-eye');
+  }
+}
 function showLoading() { document.getElementById('global-loader').classList.remove('hidden'); }
 function hideLoading() { document.getElementById('global-loader').classList.add('hidden'); }
