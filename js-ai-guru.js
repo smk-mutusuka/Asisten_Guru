@@ -1,5 +1,5 @@
 // ⚠️ MASUKKAN URL WEB APP KAMU DISINI
-var BACKEND_URL = 'URL_WEB_APP_KAMU_DISINI'; 
+var BACKEND_URL = 'https://script.google.com/macros/s/AKfycbyUAYG8PVKtXEOI-NrlmNMR_qk2oNm-0t2Ju0TSohz4-cbqnfUJtjaQyGOJm-Hqx9lh/exec'; 
 var FETCH_TIMEOUT_MS = 120000; 
 
 var currentUser = null;
