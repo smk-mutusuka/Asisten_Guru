@@ -17,7 +17,6 @@ window.google.script.run = {
         allowedFuncs.forEach(function(fn) {
           chain[fn] = function() {
             var args = Array.prototype.slice.call(arguments);
-            
             var controller = new AbortController();
             var timeoutId = setTimeout(function() { controller.abort(); }, 120000); 
 
@@ -128,7 +127,7 @@ function showLoading() { document.getElementById('global-loader').classList.remo
 function hideLoading() { document.getElementById('global-loader').classList.add('hidden'); }
 
 // =========================================================================
-// KODE FORM AI GURU (NAMA & NBM DIKUNCI)
+// KODE FORM AI GURU
 // =========================================================================
 var FE_SCHOOL_LOGO_URL = "https://lh3.googleusercontent.com/d/1d1xBvybSKr-I8d_LOYZwdEV1TlVgptfo";
 var FE_SMK_JURUSAN = [
@@ -244,7 +243,7 @@ function renderAIGuruPage() {
       '<button type="button" class="ai-tab-btn" data-tab="kokurikuler" onclick="switchAITab(\'kokurikuler\')"><i class="fas fa-users-cog"></i> Kokurikuler</button>' +
     '</div>' +
     
-    // PANEL PROTA (READONLY DITAMBAHKAN)
+    // PANEL PROTA
     '<div class="ai-panel" id="ai-panel-prota">' +
       buildPanelHeader('Prota & Promes', 'Buat Program Tahunan (Prota) dan Program Semester (Promes) sekaligus.', 'fa-calendar-alt') +
       '<div class="card ai-form-card">' +
@@ -274,7 +273,7 @@ function renderAIGuruPage() {
         buildActionButtonsProta() +
       '</div><div class="ai-output-container" id="ai-output-prota"></div></div>' +
 
-    // PANEL MODUL AJAR (READONLY DITAMBAHKAN)
+    // PANEL MODUL AJAR
     '<div class="ai-panel hidden" id="ai-panel-modul_ajar">' +
       buildPanelHeader('Modul Ajar SMK', 'Susun modul ajar lengkap sesuai Kurikulum Merdeka dengan K3LH & standar industri.', 'fa-book-open') +
       '<div class="card ai-form-card">' +
@@ -307,7 +306,7 @@ function renderAIGuruPage() {
         buildActionButtons('modul_ajar') +
       '</div><div class="ai-output-container" id="ai-output-modul_ajar"></div></div>' +
 
-    // PANEL SOAL (READONLY DITAMBAHKAN)
+    // PANEL SOAL
     '<div class="ai-panel hidden" id="ai-panel-soal">' +
       buildPanelHeader('Buat Soal Ujian', 'Buat paket soal lengkap dengan kunci, pembahasan, dan kisi-kisi.', 'fa-question-circle') +
       '<div class="card ai-form-card">' +
@@ -356,7 +355,7 @@ function renderAIGuruPage() {
         buildActionButtonsSoal() +
       '</div><div class="ai-output-container" id="ai-output-soal"></div></div>' +
 
-    // PANEL KOKURIKULER (READONLY DITAMBAHKAN)
+    // PANEL KOKURIKULER
     '<div class="ai-panel hidden" id="ai-panel-kokurikuler">' +
       buildPanelHeader('Modul Kokurikuler', 'Susun modul projek kokurikuler berbasis 8 Dimensi Lulusan.', 'fa-users-cog') +
       '<div class="card ai-form-card">' +
@@ -610,26 +609,112 @@ function renderSoalOutput(container, result) {
   container.innerHTML = '<div class="card ai-result-card"><div class="ai-result-toolbar"><div class="ai-result-badge ai-badge-success"><i class="fas fa-check-circle"></i> Berhasil</div><div class="ai-result-actions"><button type="button" class="btn btn-primary btn-sm" onclick="aiGuruDownloadWord()"><i class="fas fa-download"></i> Download Word</button></div></div><div class="ai-result-preview">' + html + '</div></div>';
 }
 
+// =============================================
+// FUNGSI PEMBERSIH HTML & DOWNLOAD WORD (FIXED)
+// =============================================
+function getWordCSS() {
+  return `
+    @page { size: A4; margin: 2cm; }
+    body { font-family: "Times New Roman", Times, serif; font-size: 12pt; color: #000; line-height: 1.5; }
+    h1, h2, h3, h4, h5, h6 { font-family: "Times New Roman", Times, serif; color: #000; }
+    h1 { font-size: 14pt; text-align: center; text-transform: uppercase; margin: 10px 0; }
+    h2 { font-size: 12pt; text-transform: uppercase; margin: 15px 0 5px 0; }
+    h3 { font-size: 12pt; font-weight: bold; margin: 10px 0 5px 0; }
+    h4 { font-size: 12pt; font-weight: bold; font-style: italic; margin: 10px 0 5px 0; }
+    p { margin: 5px 0; text-align: justify; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+    th, td { border: 1px solid #000; padding: 6px; text-align: left; vertical-align: top; font-size: 12pt; }
+    th { background-color: #f2f2f2; text-align: center; font-weight: bold; }
+    table.identitas, table.identitas td { border: none !important; padding: 2px 5px !important; }
+    table.ttd, table.ttd td { border: none !important; text-align: center; vertical-align: top; }
+    strong, b { font-weight: bold; color: #000; }
+    u { text-decoration: underline; }
+  `;
+}
+
+function cleanHtmlForWord(html) {
+  var t = html;
+  
+  // 1. Perbaiki tag <strong> yang rusak (misal: strong>1. Stimulation:)
+  t = t.replace(/([^<])strong>/gi, '$1<strong>');
+  t = t.replace(/strong>([^<]+):/gi, '<strong>$1:</strong>');
+  
+  // 2. Perbaiki NIPM dobel menjadi NBM
+  t = t.replace(/NIPM\.\s*NIPM\./gi, 'NBM.');
+  t = t.replace(/NIP\.\s*NIP\./gi, 'NBM.');
+  
+  // Ganti NIPM. [NBM] menjadi NBM. [NBM] untuk guru
+  var nbmGuru = (currentUser && currentUser.NBM) ? currentUser.NBM : '';
+  if (nbmGuru && nbmGuru !== '-') {
+    var regexNBM = new RegExp('NIPM\\.\\s*' + nbmGuru, 'gi');
+    t = t.replace(regexNBM, 'NBM. ' + nbmGuru);
+  }
+
+  // 3. Perbaiki tabel identitas yang kehilangan titik dua (:)
+  t = t.replace(/<tr>\s*<td[^>]*>([^<]+)<\/td>\s*<td[^>]*>([^<]+)<\/td>\s*<\/tr>/gi, function(match, p1, p2) {
+    if (p1.indexOf(':') === -1 && p2.indexOf(':') === -1 && p1.trim().length > 0) {
+      // Jika kolom 1 bukan header tabel utama (Kegiatan, Kriteria, dll)
+      if (p1.indexOf('Kegiatan') === -1 && p1.indexOf('Kriteria') === -1) {
+        return '<tr><td style="width:30%; font-weight:normal;">' + p1.trim() + '</td><td style="width:3%;">:</td><td>' + p2.trim() + '</td></tr>';
+      }
+    }
+    return match;
+  });
+
+  // 4. Perbaiki tabel yang tidak punya <tr> (AI kadang langsung <td>)
+  t = t.replace(/<table([^>]*)>\s*<td/gi, '<table$1><tr><td');
+  t = t.replace(/<\/td>\s*<td/gi, '</td><td');
+  t = t.replace(/<\/td>\s*<\/table>/gi, '</td></tr></table>');
+
+  return t;
+}
+
+function generateDocxBlob(htmlContent, fileTitle) {
+  var cleanHtml = cleanHtmlForWord(htmlContent);
+  
+  var baseUrl = window.location.origin + window.location.pathname.replace('index.html', '').replace(/\/$/, '');
+  var headerLogo = '<div style="text-align:center; margin-bottom:20px;"><img src="' + baseUrl + '/logo.png" width="94" height="115" style="width:2.5cm;height:3.05cm;" /></div>';
+  
+  var docHtml = `
+    <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+    <head>
+      <meta charset="utf-8">
+      <title>${fileTitle}</title>
+      <style>${getWordCSS()}</style>
+    </head>
+    <body>
+      ${headerLogo}
+      ${cleanHtml}
+    </body>
+    </html>
+  `;
+
+  var blob = htmlDocx.asBlob(docHtml);
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = fileTitle.replace(/[^a-zA-Z0-9]/g, '_') + '.docx';
+  document.body.appendChild(a); 
+  a.click(); 
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  
+  Swal.fire({ icon: 'success', title: 'Berhasil', text: 'File Word berhasil diunduh dengan rapi.', timer: 1500, showConfirmButton: false });
+}
+
 function aiGuruDownloadWord() {
   if (!aiGuruState.lastResult || !aiGuruState.lastResult.html) return Swal.fire('Error','Dokumen kosong','error');
-  var baseUrl = window.location.origin + window.location.pathname.replace('index.html', '').replace(/\/$/, '');
-  var headerLogo = '<div style="text-align:center; margin-bottom:20px;"><img src="' + baseUrl + '/logo.png" width="94" height="115" style="width:2.5cm;height:3.05cm;" /></div>';
-  var docHtml = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><style>body{font-family:"Times New Roman",serif;font-size:12pt;}table{width:100%;border-collapse:collapse;}th,td{border:1px solid black;padding:5px;}</style></head><body>' + headerLogo + aiGuruState.lastResult.html + '</body></html>';
-  var blob = htmlDocx.asBlob(docHtml); var url = URL.createObjectURL(blob); var a = document.createElement('a'); a.href = url; a.download = 'Dokumen.docx'; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+  generateDocxBlob(aiGuruState.lastResult.html, 'Dokumen_AI_' + (aiGuruState.lastFitur || ''));
 }
+
 function aiGuruDownloadProta() {
   if (!aiGuruState.lastResult || !aiGuruState.lastResult.htmlProta) return;
-  var baseUrl = window.location.origin + window.location.pathname.replace('index.html', '').replace(/\/$/, '');
-  var headerLogo = '<div style="text-align:center; margin-bottom:20px;"><img src="' + baseUrl + '/logo.png" width="94" height="115" style="width:2.5cm;height:3.05cm;" /></div>';
-  var docHtml = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"></head><body>' + headerLogo + aiGuruState.lastResult.htmlProta + '</body></html>';
-  var blob = htmlDocx.asBlob(docHtml); var url = URL.createObjectURL(blob); var a = document.createElement('a'); a.href = url; a.download = 'Prota.docx'; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+  generateDocxBlob(aiGuruState.lastResult.htmlProta, 'Prota_AI');
 }
+
 function aiGuruDownloadPromes() {
   if (!aiGuruState.lastResult || !aiGuruState.lastResult.htmlPromes) return;
-  var baseUrl = window.location.origin + window.location.pathname.replace('index.html', '').replace(/\/$/, '');
-  var headerLogo = '<div style="text-align:center; margin-bottom:20px;"><img src="' + baseUrl + '/logo.png" width="94" height="115" style="width:2.5cm;height:3.05cm;" /></div>';
-  var docHtml = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"></head><body>' + headerLogo + aiGuruState.lastResult.htmlPromes + '</body></html>';
-  var blob = htmlDocx.asBlob(docHtml); var url = URL.createObjectURL(blob); var a = document.createElement('a'); a.href = url; a.download = 'Promes.docx'; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+  generateDocxBlob(aiGuruState.lastResult.htmlPromes, 'Promes_AI');
 }
 
 function aiGuruResetForm(fitur) { if (!confirm('Reset form?')) return; location.reload(); }
