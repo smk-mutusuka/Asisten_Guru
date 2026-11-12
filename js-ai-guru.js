@@ -204,22 +204,39 @@ function renderOutput(fitur, result) {
 // =============================================
 // DOWNLOAD WORD
 // =============================================
+// =============================================
+// DOWNLOAD WORD (DENGAN LOGO OTOMATIS)
+// =============================================
 function downloadWord() {
   if (!lastResult) return;
   
   var htmlContent = lastResult.html || lastResult.htmlProta;
   if (!htmlContent) return Swal.fire('Error', 'Dokumen kosong', 'error');
 
+  // 1. Ambil URL otomatis dari GitHub Pages tempat kamu hosting
+  var baseUrl = window.location.origin + window.location.pathname.replace('index.html', '').replace(/\/$/, '');
+  var logoUrl = baseUrl + '/logo.png';
+
+  // 2. Sisipkan Logo di paling atas dokumen
+  var headerLogo = '<div style="text-align:center; margin-bottom:20px;">' +
+                   '<img src="' + logoUrl + '" width="94" height="115" style="width:2.5cm;height:3.05cm;" />' +
+                   '</div>';
+
+  // 3. Gabungkan logo dengan isi dokumen
+  var finalHtml = headerLogo + htmlContent;
+
   var docHtml = `
     <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
     <head><meta charset='utf-8'><title>Dokumen AI</title>
     <style>
-      body { font-family: 'Times New Roman', serif; font-size: 12pt; }
+      body { font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.5; }
       table { width: 100%; border-collapse: collapse; }
       th, td { border: 1px solid black; padding: 5px; }
       th { background: #eee; text-align: center; }
+      .identitas, .identitas td { border: none !important; padding: 0 5px 0 0; text-align: left; }
+      .ttd, .ttd td { border: none !important; text-align: center; }
     </style>
-    </head><body>${htmlContent}</body></html>
+    </head><body>${finalHtml}</body></html>
   `;
 
   var blob = htmlDocx.asBlob(docHtml);
@@ -232,7 +249,7 @@ function downloadWord() {
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
   
-  Swal.fire({ icon: 'success', title: 'Berhasil', text: 'File Word sedang diunduh', timer: 1500, showConfirmButton: false });
+  Swal.fire({ icon: 'success', title: 'Berhasil', text: 'File Word sedang diunduh beserta Logo', timer: 1500, showConfirmButton: false });
 }
 
 // =============================================
