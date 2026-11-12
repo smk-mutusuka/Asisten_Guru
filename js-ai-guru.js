@@ -297,7 +297,7 @@ function renderAIGuruPage() {
         '</div></div>' +
         '<div class="ai-form-section"><div class="ai-form-section-title"><i class="fas fa-tools"></i> Sarana & Dimensi Lulusan</div>' +
             '<div class="form-group"><label>Sarana & Prasarana (opsional)</label><textarea id="ma_saranaPrasarana" class="form-control" rows="2"></textarea></div>' +
-            '<div class="form-group"><label>Dimensi Profil Lulusan (pilih 2-3)</label><div class="ai-checkbox-grid">' + dimensiCheckboxes + '</div></div>' +
+            '<div class="form-group"><label>Dimensi Profil Lulusan (pilih 2-3)</label><div class="ai-checkbox-grid">' + dimensiCheckboxes + '</div>' +
             '<div class="form-group"><label>Versi Modul</label><select id="ma_versi" class="form-control"><option value="ringkas">Ringkas</option><option value="lengkap" selected>Lengkap</option></select></div>' +
         '</div>' +
         buildActionButtons('modul_ajar') +
@@ -634,3 +634,15 @@ function aiGuruDownloadPromes() {
 }
 
 function aiGuruResetForm(fitur) { if (!confirm('Reset form?')) return; location.reload(); }
+
+/* ⭐ FIX: Memaksa checkbox agar rapi meskipun berada di dalam form-group */
+.ai-checkbox-grid label.ai-checkbox-item {
+    display: flex !important;
+    align-items: center !important;
+    margin-bottom: 0 !important;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    color: #334155 !important;
+}
