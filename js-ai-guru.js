@@ -610,67 +610,50 @@ function renderSoalOutput(container, result) {
 }
 
 // =============================================
-// FUNGSI PEMBERSIH HTML & DOWNLOAD WORD (SUPER FIX)
+// FUNGSI PEMBERSIH HTML & DOWNLOAD WORD (SUPER FIX 2)
 // =============================================
 function getWordCSS() {
   return `
     @page { size: A4; margin: 2cm; }
-    body { font-family: "Times New Roman", Times, serif; font-size: 12pt; color: #000; line-height: 1.5; }
-    h1, h2, h3, h4, h5, h6 { font-family: "Times New Roman", Times, serif; color: #000; }
-    h1 { font-size: 14pt; text-align: center; text-transform: uppercase; margin: 10px 0; }
-    h2 { font-size: 12pt; text-transform: uppercase; margin: 15px 0 5px 0; }
-    h3 { font-size: 12pt; font-weight: bold; margin: 10px 0 5px 0; }
-    h4 { font-size: 12pt; font-weight: bold; font-style: italic; margin: 10px 0 5px 0; }
+    * { font-family: "Times New Roman", Times, serif !important; font-size: 12pt; color: #000 !important; }
+    body { line-height: 1.5; }
+    h1 { font-size: 14pt !important; font-weight: bold !important; text-align: center; text-transform: uppercase; margin: 10px 0; }
+    h2, h3, h4 { font-size: 12pt !important; font-weight: bold !important; margin: 15px 0 5px 0; }
     p { margin: 5px 0; text-align: justify; }
     table { width: 100%; border-collapse: collapse; margin-bottom: 15px; table-layout: fixed; word-wrap: break-word; }
-    th, td { border: 1px solid #000; padding: 6px; text-align: left; vertical-align: top; font-size: 12pt; }
+    th, td { border: 1px solid #000; padding: 6px; text-align: left; vertical-align: top; }
     th { background-color: #f2f2f2; text-align: center; font-weight: bold; }
     table.identitas, table.identitas td { border: none !important; padding: 2px 5px !important; }
     table.ttd, table.ttd td { border: none !important; text-align: center; vertical-align: top; }
-    strong, b { font-weight: bold; color: #000; }
+    strong, b { font-weight: bold; }
     u { text-decoration: underline; }
   `;
 }
 
 function cleanHtmlForWord(html) {
-  // 1. Bersihkan teks pembungkus
+  // 1. Bersihkan teks pembungkus dari AI
   var rawHtml = html.replace(/```html/gi, "").replace(/```/g, "").trim();
 
-  // 2. Gunakan DOMParser untuk merapikan HTML
+  // 2. Perbaikan Regex Darurat (Sebelum masuk DOMParser)
+  // Hapus semua link <a href="...">...</a> menjadi teks biasa
+  rawHtml = rawHtml.replace(/<a\b[^>]*>(.*?)<\/a>/gi, '$1');
+  // Perbaiki tag nyasar seperti <Khusnun Afifah...>
+  rawHtml = rawHtml.replace(/<([A-Z][a-zA-Z\s\.\,]+)/g, '$1');
+  // Hapus <strong> atau <b> yang membungkus NIPM / NBM
+  rawHtml = rawHtml.replace(/<(strong|b)>\s*(NIPM\.|NBM\.|NIP\.)([\s\S]*?)<\/\1>/gi, '$2$3');
+  // Perbaiki tabel yang rusak (tr di luar table)
+  rawHtml = rawHtml.replace(/<tr>\s*<thead>/gi, '<thead><tr>');
+  rawHtml = rawHtml.replace(/<\/thead>\s*<tr>/gi, '</thead><tbody><tr>');
+
+  // 3. Parsing menggunakan DOMParser (lebih kuat dari regex)
   var parser = new DOMParser();
   var doc = parser.parseFromString(rawHtml, "text/html");
 
-  // 3. Perbaiki tag <strong> yang rusak (misal: <<strong>Fokus:</strong></strong>)
-  var allElements = doc.body.getElementsByTagName("*");
-  for (var i = 0; i < allElements.length; i++) {
-    var el = allElements[i];
-    if (el.innerHTML) {
-      el.innerHTML = el.innerHTML.replace(/<<strong>/gi, "<strong>").replace(/<\/strong><\/strong>/gi, "</strong>");
-    }
-  }
-
-  // 4. Paksa perbaiki struktur Tabel agar valid
-  var tables = doc.getElementsByTagName("table");
-  for (var i = 0; i < tables.length; i++) {
-    var table = tables[i];
-    // Pastikan ada <tr>
-    if (table.children.length > 0) {
-      var hasTr = false;
-      for (var j = 0; j < table.children.length; j++) {
-        if (table.children[j].tagName === "TR") hasTr = true;
-      }
-      if (!hasTr) {
-        var newTr = doc.createElement("tr");
-        while (table.firstChild) { newTr.appendChild(table.firstChild); }
-        table.appendChild(newTr);
-      }
-    }
-  }
-
-  // 5. Perbaiki Tabel Identitas (Tambahkan titik dua jika hilang)
+  // 4. Paksa perbaiki Tabel Identitas (Titik dua)
   var rows = doc.querySelectorAll("table.identitas tr");
   for (var i = 0; i < rows.length; i++) {
     var tds = rows[i].querySelectorAll("td");
+    // Jika hanya 2 kolom (Label, Value) -> Tambahkan titik dua di tengah
     if (tds.length === 2) {
       var label = tds[0].textContent.trim();
       if (label.indexOf(":") === -1) {
@@ -679,26 +662,17 @@ function cleanHtmlForWord(html) {
         newTd.textContent = ":";
         rows[i].insertBefore(newTd, tds[1]);
       }
-    } else if (tds.length === 3) {
+    } 
+    // Jika 3 kolom tapi kolom ke-2 kosong (Label, Kosong, Value) -> Isi titik dua
+    else if (tds.length === 3) {
       if (tds[1].textContent.trim() === "") {
         tds[1].textContent = ":";
       }
     }
   }
 
-  // 6. Perbaiki NIPM dobel / salah tempat menjadi NBM
+  // 5. Hapus sisa-sisa div pembungkus yang tidak perlu
   var bodyHtml = doc.body.innerHTML;
-  bodyHtml = bodyHtml.replace(/NIPM\.\s*NIPM\./gi, "NBM.");
-  bodyHtml = bodyHtml.replace(/NIP\.\s*NIP\./gi, "NBM.");
-  
-  // Ganti NIPM. [NBM] menjadi NBM. [NBM] untuk guru
-  var nbmGuru = (currentUser && currentUser.NBM) ? currentUser.NBM : '';
-  if (nbmGuru && nbmGuru !== '-') {
-    var regexNBM = new RegExp('NIPM\\.\\s*' + nbmGuru, 'gi');
-    bodyHtml = bodyHtml.replace(regexNBM, 'NBM. ' + nbmGuru);
-  }
-
-  // Hapus div pembungkus yang tidak perlu
   bodyHtml = bodyHtml.replace(/<div class="ai-output-content">/gi, "").replace(/<\/div>/gi, "");
 
   return bodyHtml;
